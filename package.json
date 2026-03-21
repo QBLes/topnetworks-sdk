@@ -1,0 +1,64 @@
+{
+  "name": "topnetworks",
+  "version": "1.0.0",
+  "description": "TypeScript SDK for TopNetworks — live AI provider health, latency, pricing, smart routing, and decision tools for 52+ providers. Zero dependencies.",
+  "keywords": [
+    "ai",
+    "api",
+    "monitoring",
+    "health",
+    "latency",
+    "pricing",
+    "failover",
+    "llm",
+    "openai",
+    "anthropic",
+    "gemini",
+    "deepseek",
+    "groq",
+    "agent",
+    "mcp",
+    "status",
+    "topnetworks"
+  ],
+  "license": "MIT",
+  "author": "TopNetworks <hello@topnetworks.com> (https://topnetworks.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/QBLes/topnetworks-sdk"
+  },
+  "homepage": "https://topnetworks.com/api-docs",
+  "bugs": "https://github.com/QBLes/topnetworks-sdk/issues",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.5.0"
+  }
+}
