@@ -675,6 +675,50 @@ export interface McpResponse {
   }
 }
 
+// ─── /api/v1/webhooks ────────────────────────────────────────────────────────
+
+export type WebhookEvent = 'provider.down' | 'provider.up' | 'provider.degraded' | 'incident.new' | 'incident.resolved'
+
+export interface WebhookSubscribeParams {
+  callbackUrl: string
+  events: WebhookEvent[]
+  providers?: string[]
+  secret?: string
+  expiresInHours?: number
+  metadata?: Record<string, unknown>
+}
+
+export interface WebhookSubscription {
+  id: string
+  callback_url: string
+  events: WebhookEvent[]
+  providers: string[] | null
+  created_at: string
+  expires_at: string | null
+  active: boolean
+  fire_count: number
+  fail_count: number
+  last_fired_at: string | null
+  last_error: string | null
+  metadata: Record<string, unknown>
+}
+
+export interface WebhookSubscribeResponse {
+  subscription: WebhookSubscription
+  verify_url: string
+  manage_url: string
+  note: string
+}
+
+export interface WebhookStatusResponse {
+  subscription: WebhookSubscription
+}
+
+export interface WebhookDeleteResponse {
+  deleted: boolean
+  id: string
+}
+
 // ─── Client Options ──────────────────────────────────────────────────────────
 
 export interface TopNetworksOptions {

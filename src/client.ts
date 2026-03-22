@@ -42,6 +42,10 @@ import type {
   ValidateParams,
   ValidateResponse,
   McpResponse,
+  WebhookSubscribeParams,
+  WebhookSubscribeResponse,
+  WebhookStatusResponse,
+  WebhookDeleteResponse,
 } from './types.js'
 
 const DEFAULT_BASE_URL = 'https://topnetworks.com'
@@ -151,6 +155,32 @@ export class TopNetworks {
         throw new TopNetworksError(
           `TopNetworks API error: ${res.status} ${res.statusText}`,
           { status: res.status, statusText: res.statusText, body: resBody },
+        )
+      }
+
+      return (await res.json()) as T
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+  private async del<T>(path: string, params: object = {}): Promise<T> {
+    const url = `${this.baseUrl}${path}${toQuery(params)}`
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), this.timeout)
+
+    try {
+      const res = await this._fetch(url, {
+        method: 'DELETE',
+        headers: { Accept: 'application/json', ...this.headers },
+        signal: controller.signal,
+      })
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => res.statusText)
+        throw new TopNetworksError(
+          `TopNetworks API error: ${res.status} ${res.statusText}`,
+          { status: res.status, statusText: res.statusText, body },
         )
       }
 
@@ -306,5 +336,29 @@ export class TopNetworks {
       method,
       params,
     })
+  }
+
+  // ── Webhooks ─────────────────────────────────────────────────────────────
+
+  /** Subscribe to status change webhooks. */
+  async webhookSubscribe(params: WebhookSubscribeParams): Promise<WebhookSubscribeResponse> {
+    return this.post('/api/v1/webhooks', {
+      callback_url: params.callbackUrl,
+      events: params.events,
+      providers: params.providers,
+      secret: params.secret,
+      expires_in_hours: params.expiresInHours,
+      metadata: params.metadata,
+    })
+  }
+
+  /** Check webhook subscription status. */
+  async webhookStatus(id: string): Promise<WebhookStatusResponse> {
+    return this.get('/api/v1/webhooks', { id })
+  }
+
+  /** Delete (deactivate) a webhook subscription. */
+  async webhookDelete(id: string): Promise<WebhookDeleteResponse> {
+    return this.del('/api/v1/webhooks', { id })
   }
 }
