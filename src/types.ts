@@ -739,3 +739,433 @@ export interface TopNetworksErrorData {
   statusText: string
   body: unknown
 }
+
+// ─── /api/v1/function-calling ────────────────────────────────────────────────
+
+export interface FunctionCallingParams {
+  provider?: string
+  parallel_only?: boolean
+  supported_only?: boolean
+}
+
+export interface FunctionCallingRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  tool_call_supported: boolean
+  parallel_calls_supported: boolean
+  max_tools_per_request: number | null
+  forced_tool_call_supported: boolean
+  tool_choice_options: string[]
+  notes: string | null
+}
+
+export interface FunctionCallingResponse {
+  function_calling: FunctionCallingRecord[]
+  meta: { total: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/deprecations ────────────────────────────────────────────────────
+
+export type DeprecationStatus = 'active' | 'warning' | 'deprecated' | 'sunset'
+
+export interface DeprecationsParams {
+  provider?: string
+  status?: DeprecationStatus
+}
+
+export interface DeprecationRecord {
+  provider_id: string
+  model_id: string
+  model_name: string
+  status: DeprecationStatus
+  deprecation_announced: string | null
+  deprecation_date: string | null
+  sunset_date: string | null
+  replacement_model_id: string | null
+  replacement_model_name: string | null
+  migration_url: string | null
+  notes: string | null
+}
+
+export interface DeprecationsResponse {
+  deprecations: DeprecationRecord[]
+  summary: { active: number; warning: number; deprecated: number; sunset: number }
+  meta: { total: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/prompt-caching ──────────────────────────────────────────────────
+
+export interface PromptCachingParams {
+  provider?: string
+  supported_only?: boolean
+}
+
+export interface PromptCachingRecord {
+  provider_id: string
+  provider_name: string
+  caching_supported: boolean
+  caching_type: 'automatic' | 'explicit' | 'none'
+  cache_ttl_seconds: number | null
+  cache_ttl_minutes: number | null
+  cached_input_price_per_mtoken: number | null
+  uncached_input_price_per_mtoken: number | null
+  min_cacheable_tokens: number | null
+  models_supported: string[]
+  savings_pct: number | null
+  notes: string | null
+}
+
+export interface PromptCachingResponse {
+  prompt_caching: PromptCachingRecord[]
+  meta: { total: number; supported_count: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/openai-compat ───────────────────────────────────────────────────
+
+export interface OpenAICompatParams {
+  provider?: string
+  compatible_only?: boolean
+  drop_in_only?: boolean
+}
+
+export interface OpenAICompatRecord {
+  provider_id: string
+  provider_name: string
+  openai_compatible: boolean
+  base_url: string | null
+  compatible_endpoints: string[]
+  known_quirks: string[]
+  drop_in_replacement: boolean
+  last_verified: string
+}
+
+export interface OpenAICompatResponse {
+  openai_compat: OpenAICompatRecord[]
+  meta: { total: number; compatible_count: number; drop_in_count: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/logprob-support ─────────────────────────────────────────────────
+
+export interface LogprobSupportParams {
+  provider?: string
+  supported_only?: boolean
+}
+
+export interface LogprobRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  logprob_supported: boolean
+  max_top_logprobs: number | null
+  implementation_notes: string | null
+  docs_url: string | null
+}
+
+export interface LogprobSupportResponse {
+  logprob_support: LogprobRecord[]
+  meta: { total: number; supported_count: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/max-output-tokens ───────────────────────────────────────────────
+
+export interface MaxOutputTokensParams {
+  provider?: string
+  min_output?: number
+  task?: string
+  limit?: number
+}
+
+export interface MaxOutputTokenRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  model_name: string
+  task: string
+  max_output_tokens: number
+  context_window: number | null
+  output_to_context_ratio: number | null
+  notes: string | null
+}
+
+export interface MaxOutputTokensResponse {
+  max_output_tokens: MaxOutputTokenRecord[]
+  meta: { total: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/batch-api ───────────────────────────────────────────────────────
+
+export interface BatchAPIParams {
+  provider?: string
+  available_only?: boolean
+}
+
+export interface BatchAPIRecord {
+  provider_id: string
+  provider_name: string
+  batch_api_available: boolean
+  discount_pct: number | null
+  max_requests_per_batch: number | null
+  max_input_tokens_per_job: number | null
+  typical_turnaround_min_hours: number | null
+  typical_turnaround_max_hours: number | null
+  batch_endpoint: string | null
+  supported_endpoints: string[]
+  notes: string | null
+}
+
+export interface BatchAPIResponse {
+  batch_api: BatchAPIRecord[]
+  meta: { total: number; available_count: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/fine-tuning ─────────────────────────────────────────────────────
+
+export interface FineTuningParams {
+  provider?: string
+  available_only?: boolean
+  method?: string
+}
+
+export interface FineTuningRecord {
+  provider_id: string
+  provider_name: string
+  available: boolean
+  supported_models: string[]
+  methods: string[]
+  min_examples: number | null
+  cost_per_1k_tokens_training: number | null
+  storage_cost_per_model_per_month: number | null
+  data_retention_days: number | null
+  regions: string[]
+  notes: string | null
+}
+
+export interface FineTuningResponse {
+  fine_tuning: FineTuningRecord[]
+  meta: { total: number; available_count: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/overflow-behaviour ──────────────────────────────────────────────
+
+export type OverflowBehaviour = 'error' | 'truncate' | 'sliding_window'
+
+export interface OverflowBehaviourParams {
+  provider?: string
+  behaviour?: OverflowBehaviour
+}
+
+export interface OverflowBehaviourRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  context_window: number | null
+  overflow_behaviour: OverflowBehaviour
+  truncation_side: 'start' | 'end' | null
+  warning_provided: boolean
+  warning_mechanism: 'header' | 'response_field' | 'error_message' | 'none'
+  last_verified: string
+  notes: string | null
+}
+
+export interface OverflowBehaviourResponse {
+  overflow_behaviour: OverflowBehaviourRecord[]
+  summary: { error: number; truncate: number; sliding_window: number; silent_truncators: string[] }
+  meta: { total: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/data-retention ──────────────────────────────────────────────────
+
+export interface DataRetentionParams {
+  provider?: string
+  zdr_available?: boolean
+  no_training?: boolean
+}
+
+export interface DataRetentionRecord {
+  provider_id: string
+  provider_name: string
+  prompts_logged: boolean | null
+  retention_days: number | null
+  opt_out_available: boolean
+  opt_out_method: string | null
+  trained_on_api_data: boolean | null
+  zero_data_retention_available: boolean
+  zero_data_retention_requires_enterprise: boolean
+  policy_url: string | null
+  last_verified: string
+}
+
+export interface DataRetentionResponse {
+  data_retention: DataRetentionRecord[]
+  meta: { total: number; zdr_available_count: number; trains_on_data_count: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/compliance ──────────────────────────────────────────────────────
+
+export interface ComplianceParams {
+  provider?: string
+  certification?: 'soc2' | 'hipaa' | 'iso27001' | 'gdpr' | 'pci-dss' | 'fedramp'
+  hipaa?: boolean
+  gdpr?: boolean
+}
+
+export interface ComplianceRecord {
+  provider_id: string
+  provider_name: string
+  certifications: string[]
+  gdpr_compliant: boolean
+  gdpr_dpa_available: boolean
+  hipaa_baa_available: boolean
+  data_residency_regions: string[]
+  soc2_type: 'I' | 'II' | null
+  iso27001: boolean
+  pci_dss: boolean
+  last_verified: string
+  compliance_url: string | null
+}
+
+export interface ComplianceResponse {
+  compliance: ComplianceRecord[]
+  meta: { total: number; gdpr_compliant_count: number; hipaa_baa_count: number; soc2_ii_count: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/resolve-alias ───────────────────────────────────────────────────
+
+export interface ResolveAliasParams {
+  alias?: string
+  provider?: string
+}
+
+export interface AliasRecord {
+  alias: string
+  provider_id: string
+  provider_name: string
+  resolved_model_id: string
+  resolved_model_name: string
+  pinned_since: string | null
+  auto_updates: boolean
+  notes: string | null
+}
+
+export interface ResolveAliasResponse {
+  aliases?: AliasRecord[]
+  meta?: { total: number; auto_updating_count: number; filters: Record<string, unknown>; note: string; data_date: string }
+  // Single alias lookup returns the record directly
+  alias?: string
+  provider_id?: string
+  resolved_model_id?: string
+}
+
+// ─── /api/v1/embedding-quality ───────────────────────────────────────────────
+
+export type EmbeddingTaskType = 'retrieval' | 'clustering' | 'reranking' | 'sts'
+
+export interface EmbeddingQualityParams {
+  provider?: string
+  task_type?: EmbeddingTaskType
+  min_score?: number
+  limit?: number
+}
+
+export interface EmbeddingQualityRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  model_name: string
+  task_type: EmbeddingTaskType
+  mteb_score: number
+  mteb_rank: number | null
+  embedding_dimensions: number | null
+  max_tokens: number | null
+  price_per_1m_tokens: number | null
+  notes: string | null
+}
+
+export interface EmbeddingQualityResponse {
+  embedding_quality: EmbeddingQualityRecord[]
+  meta: { total: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/sla ─────────────────────────────────────────────────────────────
+
+export interface SLAParams {
+  provider?: string
+  sla_available_only?: boolean
+  min_uptime?: number
+}
+
+export interface SLARecord {
+  provider_id: string
+  provider_name: string
+  sla_available: boolean
+  guaranteed_uptime_pct: number | null
+  sla_tier_required: 'free' | 'paid' | 'enterprise' | null
+  credit_terms: string | null
+  free_tier_sla: boolean
+  measurement_window: string | null
+  sla_url: string | null
+  last_verified: string
+}
+
+export interface SLAResponse {
+  sla: SLARecord[]
+  meta: { total: number; sla_available_count: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/reranking ───────────────────────────────────────────────────────
+
+export interface RerankingParams {
+  provider?: string
+  available_only?: boolean
+  multilingual_only?: boolean
+}
+
+export interface RerankingRecord {
+  provider_id: string
+  provider_name: string
+  reranking_available: boolean
+  model_id: string | null
+  model_name: string | null
+  price_per_1k_queries: number | null
+  max_documents_per_query: number | null
+  endpoint_url: string | null
+  supports_multilingual: boolean
+  notes: string | null
+}
+
+export interface RerankingResponse {
+  reranking: RerankingRecord[]
+  meta: { total: number; available_count: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/audio-pricing ───────────────────────────────────────────────────
+
+export type AudioType = 'stt' | 'tts' | 'both'
+
+export interface AudioPricingParams {
+  provider?: string
+  type?: AudioType
+  realtime_only?: boolean
+  free_only?: boolean
+}
+
+export interface AudioPricingRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  model_name: string
+  type: 'stt' | 'tts'
+  price_per_minute: number | null
+  price_per_1k_chars: number | null
+  free_tier: string | null
+  min_billing_increment_seconds: number | null
+  supported_formats: string[]
+  realtime_supported: boolean
+  notes: string | null
+}
+
+export interface AudioPricingResponse {
+  audio_pricing: AudioPricingRecord[]
+  meta: { total: number; stt_count: number; tts_count: number; realtime_count: number; filters: Record<string, unknown>; note: string; data_date: string }
+}

@@ -46,6 +46,38 @@ import type {
   WebhookSubscribeResponse,
   WebhookStatusResponse,
   WebhookDeleteResponse,
+  FunctionCallingParams,
+  FunctionCallingResponse,
+  DeprecationsParams,
+  DeprecationsResponse,
+  PromptCachingParams,
+  PromptCachingResponse,
+  OpenAICompatParams,
+  OpenAICompatResponse,
+  LogprobSupportParams,
+  LogprobSupportResponse,
+  MaxOutputTokensParams,
+  MaxOutputTokensResponse,
+  BatchAPIParams,
+  BatchAPIResponse,
+  FineTuningParams,
+  FineTuningResponse,
+  OverflowBehaviourParams,
+  OverflowBehaviourResponse,
+  DataRetentionParams,
+  DataRetentionResponse,
+  ComplianceParams,
+  ComplianceResponse,
+  ResolveAliasParams,
+  ResolveAliasResponse,
+  EmbeddingQualityParams,
+  EmbeddingQualityResponse,
+  SLAParams,
+  SLAResponse,
+  RerankingParams,
+  RerankingResponse,
+  AudioPricingParams,
+  AudioPricingResponse,
 } from './types.js'
 
 const DEFAULT_BASE_URL = 'https://topnetworks.com'
@@ -360,5 +392,138 @@ export class TopNetworks {
   /** Delete (deactivate) a webhook subscription. */
   async webhookDelete(id: string): Promise<WebhookDeleteResponse> {
     return this.del('/api/v1/webhooks', { id })
+  }
+  // ── Model Intelligence ───────────────────────────────────────────────────
+
+  /**
+   * Per-provider/model function calling capabilities.
+   * Includes parallel call support, max tools, forced mode, tool_choice options.
+   */
+  async functionCalling(params: FunctionCallingParams = {}): Promise<FunctionCallingResponse> {
+    return this.get('/api/v1/function-calling', params)
+  }
+
+  /**
+   * Model deprecation & sunset tracker.
+   * Filter by provider or status (active|warning|deprecated|sunset).
+   */
+  async deprecations(params: DeprecationsParams = {}): Promise<DeprecationsResponse> {
+    return this.get('/api/v1/deprecations', params)
+  }
+
+  /**
+   * Max output tokens per model, sorted descending.
+   * Filter by provider, minimum output tokens, or task type.
+   */
+  async maxOutputTokens(params: MaxOutputTokensParams = {}): Promise<MaxOutputTokensResponse> {
+    return this.get('/api/v1/max-output-tokens', params)
+  }
+
+  /**
+   * Log probability support per provider/model.
+   * Essential for confidence scoring and uncertainty quantification.
+   */
+  async logprobSupport(params: LogprobSupportParams = {}): Promise<LogprobSupportResponse> {
+    return this.get('/api/v1/logprob-support', params)
+  }
+
+  /**
+   * MTEB benchmark scores for embedding models.
+   * Filter by task_type: retrieval | clustering | reranking | sts
+   */
+  async embeddingQuality(params: EmbeddingQualityParams = {}): Promise<EmbeddingQualityResponse> {
+    return this.get('/api/v1/embedding-quality', params)
+  }
+
+  /**
+   * Resolve a model alias to its current pinned snapshot.
+   * Pass alias param for single lookup, or omit for full table.
+   */
+  async resolveAlias(params: ResolveAliasParams = {}): Promise<ResolveAliasResponse> {
+    return this.get('/api/v1/resolve-alias', params)
+  }
+
+  // ── Cost & Batch ─────────────────────────────────────────────────────────
+
+  /**
+   * Prompt caching support, TTL, and cost savings per provider.
+   * Up to 90% cost reduction on repeated system prompts.
+   */
+  async promptCaching(params: PromptCachingParams = {}): Promise<PromptCachingResponse> {
+    return this.get('/api/v1/prompt-caching', params)
+  }
+
+  /**
+   * Batch API availability, discount %, and turnaround time per provider.
+   * Typically 50% cheaper for non-urgent workloads.
+   */
+  async batchApi(params: BatchAPIParams = {}): Promise<BatchAPIResponse> {
+    return this.get('/api/v1/batch-api', params)
+  }
+
+  /**
+   * Fine-tuning availability, supported models, methods, and constraints.
+   * Filter by provider or method (lora|full|supervised|dpo).
+   */
+  async fineTuning(params: FineTuningParams = {}): Promise<FineTuningResponse> {
+    return this.get('/api/v1/fine-tuning', params)
+  }
+
+  /**
+   * STT and TTS audio pricing comparison across providers.
+   * Filter by type (stt|tts|both), realtime support, or free tier.
+   */
+  async audioPricing(params: AudioPricingParams = {}): Promise<AudioPricingResponse> {
+    return this.get('/api/v1/audio-pricing', params)
+  }
+
+  /**
+   * Reranking API availability and pricing.
+   * Cohere, Voyage AI. Essential for RAG pipelines.
+   */
+  async reranking(params: RerankingParams = {}): Promise<RerankingResponse> {
+    return this.get('/api/v1/reranking', params)
+  }
+
+  // ── Trust & Compliance ───────────────────────────────────────────────────
+
+  /**
+   * SOC2, HIPAA, ISO27001, GDPR certifications per provider.
+   * Filter by specific certification, hipaa=true, or gdpr=true.
+   */
+  async compliance(params: ComplianceParams = {}): Promise<ComplianceResponse> {
+    return this.get('/api/v1/compliance', params)
+  }
+
+  /**
+   * Prompt logging policies, retention periods, and ZDR availability.
+   * Filter by zdr_available=true or no_training=true.
+   */
+  async dataRetention(params: DataRetentionParams = {}): Promise<DataRetentionResponse> {
+    return this.get('/api/v1/data-retention', params)
+  }
+
+  /**
+   * Published uptime SLA guarantees per provider.
+   * Note: different from observed uptime in /health/premium.
+   */
+  async sla(params: SLAParams = {}): Promise<SLAResponse> {
+    return this.get('/api/v1/sla', params)
+  }
+
+  /**
+   * Context overflow behaviour per provider/model.
+   * Identifies silent truncators — a common source of agent failures.
+   */
+  async overflowBehaviour(params: OverflowBehaviourParams = {}): Promise<OverflowBehaviourResponse> {
+    return this.get('/api/v1/overflow-behaviour', params)
+  }
+
+  /**
+   * OpenAI-compatible API matrix — base URLs, compatible endpoints, quirks.
+   * Use compatible_only=true or drop_in_only=true to filter.
+   */
+  async openaiCompat(params: OpenAICompatParams = {}): Promise<OpenAICompatResponse> {
+    return this.get('/api/v1/openai-compat', params)
   }
 }
