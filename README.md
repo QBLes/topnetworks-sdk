@@ -252,13 +252,58 @@ for (const e of embedding_quality) {
 ### `resolveAlias({ alias?, provider? })`
 Resolve a model alias to its current pinned snapshot. Omit `alias` to get the full table.
 ```typescript
-// Single lookup
 const record = await tn.resolveAlias({ alias: 'gpt-4o' })
 console.log(record.resolved_model_id)  // "gpt-4o-2024-11-20"
-console.log(record.auto_updates)       // true — this alias moves
+```
 
-// Full table
-const { aliases } = await tn.resolveAlias()
+### `jsonMode({ provider?, model?, schemaEnforcementOnly?, jsonModeOnly? })`
+JSON output mode support per model — json_object, strict schema enforcement, workarounds.
+```typescript
+const { json_mode } = await tn.jsonMode({ schemaEnforcementOnly: true })
+```
+
+### `streamingLatency({ provider?, model?, sort? })`
+TTFT and throughput benchmarks per model. Sort by `ttft` or `tpt`.
+```typescript
+const { streaming_latency } = await tn.streamingLatency({ sort: 'ttft' })
+```
+
+### `modelVersions({ provider?, model?, pinnableOnly?, hasBreakingChanges? })`
+Model version history, release dates, pinnable snapshots, breaking changes.
+```typescript
+const { model_versions } = await tn.modelVersions({ hasBreakingChanges: true })
+```
+
+### `websocketSupport({ provider?, websocketOnly?, category? })`
+WebSocket vs SSE streaming support per provider.
+```typescript
+const { websocket_support } = await tn.websocketSupport({ websocketOnly: true })
+```
+
+### `contextWindow({ provider?, model?, minContext?, effectiveOnly? })`
+Advertised vs effective (tested) context window sizes. Includes recommended max fill %.
+```typescript
+const { context_windows } = await tn.contextWindow({ minContext: 200000 })
+// context_windows[0]: { model_id: "gemini-2.5-pro", advertised: 1048576, effective: 500000 }
+```
+
+### `thinkingSupport({ provider?, model?, supportedOnly?, visibleThinking?, budgetConfigurable? })`
+Extended thinking / reasoning mode support — params, pricing, visibility, budget.
+```typescript
+const { thinking_support } = await tn.thinkingSupport({ supportedOnly: true })
+```
+
+### `multimodal({ provider?, model?, inputType?, outputType? })`
+Input/output modality matrix — text, image, audio, video, PDF per model.
+```typescript
+const { multimodal } = await tn.multimodal({ inputType: 'image' })
+// { inputs: ["text","image","audio","video","pdf"], outputs: ["text","image","audio"] }
+```
+
+### `structuredOutput({ provider?, model?, strictOnly?, constrainedDecoding? })`
+JSON schema enforcement beyond basic JSON mode. Strict enforcement, constrained decoding, failure modes.
+```typescript
+const { structured_output } = await tn.structuredOutput({ strictOnly: true })
 ```
 
 ---
@@ -319,6 +364,38 @@ for (const r of reranking) {
 }
 // cohere/rerank-english-v3.5: $2.00/1k, max 1000 docs
 // voyage-ai/rerank-2: $0.05/1k, max 1000 docs (40x cheaper)
+```
+
+### `taskCost({ taskType, inputTokens?, outputTokens?, cachedTokens?, limit?, freeOnly? })`
+Rank ALL providers by cost for a task type. Cheapest first.
+```typescript
+const { providers_ranked } = await tn.taskCost({ taskType: 'chat' })
+```
+
+### `cachingGranularity({ provider?, supportsCaching? })`
+Caching mechanics — cacheable elements, min tokens, TTL, auto vs explicit.
+```typescript
+const { caching_granularity } = await tn.cachingGranularity({ supportsCaching: true })
+```
+
+### `freeTier({ provider?, permanentOnly?, hasFreeTier? })`
+Detailed free tier breakdown — permanent vs trial, caps, included models.
+```typescript
+const { free_tiers } = await tn.freeTier({ permanentOnly: true })
+```
+
+### `tokenEstimate({ text, provider?, model? })`
+Estimate token count across tokenizer families. POST endpoint, max 50k chars.
+```typescript
+const { estimates, summary } = await tn.tokenEstimate({ text: 'Your prompt here...' })
+console.log(summary)  // { min_tokens: 6, max_tokens: 8, avg_tokens: 7 }
+```
+
+### `costForecast({ requestsPerDay?, avgInputTokens?, avgOutputTokens?, cacheHitRate?, task?, limit? })`
+Project daily/weekly/monthly costs across providers for a usage pattern.
+```typescript
+const { forecasts } = await tn.costForecast({ requestsPerDay: 500, avgInputTokens: 4000, avgOutputTokens: 1000 })
+console.log(`Cheapest: $${forecasts[0].monthly_cost}/month on ${forecasts[0].provider_id}`)
 ```
 
 ---
@@ -386,44 +463,77 @@ for (const p of openai_compat) {
 // cerebras: https://api.cerebras.ai/v1
 ```
 
+### `errorCodes({ provider?, category?, retryableOnly?, httpStatus? })`
+Cross-provider error code taxonomy with retry guidance.
+```typescript
+const { error_codes } = await tn.errorCodes({ retryableOnly: true })
+```
+
+### `rateLimitRecovery({ provider? })`
+429 recovery guide — retry headers, reset window semantics, backoff strategy.
+```typescript
+const { rate_limit_recovery } = await tn.rateLimitRecovery({ provider: 'openai' })
+```
+
+### `regions({ provider?, region?, model?, euOnly? })`
+Inference regions per provider. EU availability, per-model region matrices.
+```typescript
+const { regions } = await tn.regions({ euOnly: true })
+```
+
+### `uptimeHistory({ provider, period? })`
+Daily uptime % timeseries (7d/30d/90d) from live health polling.
+```typescript
+const data = await tn.uptimeHistory({ provider: 'openai', period: '30d' })
+console.log(data.overall_uptime_pct)  // 99.4
+```
+
+### `guardrails({ provider?, configurableOnly?, canDisable?, category? })`
+Content filtering config per provider — categories, strictness, false positive risk.
+```typescript
+const { guardrails } = await tn.guardrails({ canDisable: true })
+```
+
+### `rateLimitStatus({ provider? })`
+Live congestion from polling data — response time trends, error rates, congestion level.
+```typescript
+const { rate_limit_status } = await tn.rateLimitStatus()
+const avoid = rate_limit_status.filter(r => r.congestion === 'critical').map(r => r.provider_id)
+```
+
+### `migrationGuide({ from?, to?, maxDifficulty?, dropInOnly? })`
+Provider switch guide — param mapping, missing features, auth changes, gotchas.
+```typescript
+const { migration_guides } = await tn.migrationGuide({ from: 'openai', to: 'deepseek' })
+console.log(migration_guides[0].difficulty)  // "drop_in"
+```
+
 ---
 
 ## Trust & Identity
 
-### `register({ agentId, schemaVersion, integrityHash, ... })`
-Register an agent output contract. Returns a verifiable ID.
+### `attest({ provider, model, output?, payloadHash?, agentId? })`
+Attest that a specific output was produced by a specific model. Returns attestation ID + verify URL.
 ```typescript
-const contract = await tn.register({
-  agentId: 'my-agent-v2',
-  schemaVersion: '1.0',
-  integrityHash: 'sha256-abc123...',
-  description: 'Weather forecast output schema',
-  ttlHours: 720,
+const att = await tn.attest({
+  provider: 'openai',
+  model: 'gpt-4o',
+  output: 'The answer is 42.',
+  agentId: 'my-agent',
 })
-console.log(contract.id, contract.verify_url)
+console.log(att.attestation_id, att.verify_url)
 ```
 
-### `verify(id, { hash? })`
-Verify a registered contract exists. Optionally match its integrity hash.
+### `handoff({ fromAgent, toAgent, taskId?, context? })`
+Record an agent-to-agent task handoff for audit trail.
 ```typescript
-const result = await tn.verify(contract.id, { hash: 'sha256-abc123...' })
-console.log(result.valid, result.hash_match)
-```
-
-### `sign({ signerId, payloadHash, metadata?, ttlHours? })`
-Sign an input payload hash. Get a tamper-evident HMAC receipt.
-```typescript
-const receipt = await tn.sign({
-  signerId: 'my-agent',
-  payloadHash: 'sha256-def456...',
+const h = await tn.handoff({
+  fromAgent: 'planner-agent',
+  toAgent: 'executor-agent',
+  taskId: 'task-123',
+  context: 'Execute the deployment plan',
 })
-```
-
-### `validate(id, { hash? })`
-Re-derive HMAC server-side to verify a receipt was not tampered with.
-```typescript
-const valid = await tn.validate(receipt.id, { hash: 'sha256-def456...' })
-console.log(valid.signature_valid)
+console.log(h.handoff_id, h.verify_url)
 ```
 
 ---
@@ -466,13 +576,25 @@ const spec = await tn.openapi()
 ```
 
 ### `mcp(method, params?, id?)`
-Send a JSON-RPC 2.0 request to the MCP server (8 tools).
+Send a JSON-RPC 2.0 request to the MCP server (34 tools).
 ```typescript
 const tools = await tn.mcp('tools/list')
 const result = await tn.mcp('tools/call', {
   name: 'topnetworks_pick',
   arguments: { task: 'llm', needs: 'vision' },
 })
+```
+
+### `sdkSupport({ provider?, language?, officialOnly?, openaiCompatOnly? })`
+Official SDK availability per provider by language.
+```typescript
+const { sdk_support } = await tn.sdkSupport({ language: 'go', officialOnly: true })
+```
+
+### `apiChangelog({ provider?, type?, impact?, days?, limit? })`
+Cross-provider API changelog — new models, deprecations, pricing changes.
+```typescript
+const { changelog } = await tn.apiChangelog({ impact: 'high', days: 30 })
 ```
 
 ---
@@ -503,10 +625,14 @@ import type {
   PickResponse,
   HealthResponse,
   FunctionCallingResponse,
-  ComplianceResponse,
-  DeprecationsResponse,
-  PromptCachingResponse,
-  // ... all 40 endpoints typed
+  ContextWindowResponse,
+  ThinkingSupportResponse,
+  MultimodalResponse,
+  StructuredOutputResponse,
+  CostForecastResponse,
+  GuardrailsResponse,
+  MigrationGuideResponse,
+  // ... all 60 endpoints typed
 } from 'topnetworks'
 ```
 
@@ -522,7 +648,7 @@ import type {
 
 ---
 
-## All 40 Endpoints
+## All 60 Endpoints
 
 | Group | Endpoint | Method |
 |-------|----------|--------|
@@ -543,31 +669,51 @@ import type {
 | Provider Data | `rateLimits({ provider? })` | GET |
 | Provider Data | `benchmarks({ task? })` | GET |
 | Provider Data | `quotaCheck({ provider })` | GET |
-| Model Intelligence | `functionCalling({ provider? })` | GET |
-| Model Intelligence | `deprecations({ status? })` | GET |
-| Model Intelligence | `maxOutputTokens({ provider? })` | GET |
-| Model Intelligence | `logprobSupport({ provider? })` | GET |
-| Model Intelligence | `embeddingQuality({ task_type? })` | GET |
-| Model Intelligence | `resolveAlias({ alias? })` | GET |
-| Cost & Batch | `promptCaching({ provider? })` | GET |
-| Cost & Batch | `batchApi({ provider? })` | GET |
-| Cost & Batch | `fineTuning({ provider? })` | GET |
-| Cost & Batch | `audioPricing({ type? })` | GET |
-| Cost & Batch | `reranking({ provider? })` | GET |
-| Trust & Compliance | `compliance({ provider? })` | GET |
-| Trust & Compliance | `dataRetention({ provider? })` | GET |
-| Trust & Compliance | `sla({ provider? })` | GET |
-| Trust & Compliance | `overflowBehaviour({ provider? })` | GET |
-| Trust & Compliance | `openaiCompat({ provider? })` | GET |
-| Trust & Identity | `register({ agentId, ... })` | POST |
-| Trust & Identity | `verify(id)` | GET |
-| Trust & Identity | `sign({ signerId, ... })` | POST |
-| Trust & Identity | `validate(id)` | GET |
+| Trust & Identity | `attest({ provider, model, ... })` | POST |
+| Trust & Identity | `handoff({ fromAgent, toAgent, ... })` | POST |
 | Webhooks | `webhookSubscribe({ callbackUrl, ... })` | POST |
 | Webhooks | `webhookStatus(id)` | GET |
 | Webhooks | `webhookDelete(id)` | DELETE |
 | Developer Tools | `openapi()` | GET |
 | Developer Tools | `mcp(method, params?)` | POST |
+| Developer Tools | `sdkSupport({ language? })` | GET |
+| Developer Tools | `apiChangelog({ impact? })` | GET |
+| Model Intelligence | `functionCalling({ provider? })` | GET |
+| Model Intelligence | `deprecations({ status? })` | GET |
+| Model Intelligence | `maxOutputTokens({ provider? })` | GET |
+| Model Intelligence | `logprobSupport({ provider? })` | GET |
+| Model Intelligence | `embeddingQuality({ taskType? })` | GET |
+| Model Intelligence | `resolveAlias({ alias? })` | GET |
+| Model Intelligence | `jsonMode({ provider? })` | GET |
+| Model Intelligence | `streamingLatency({ provider? })` | GET |
+| Model Intelligence | `modelVersions({ provider? })` | GET |
+| Model Intelligence | `websocketSupport({ provider? })` | GET |
+| Model Intelligence | `contextWindow({ provider? })` | GET |
+| Model Intelligence | `thinkingSupport({ provider? })` | GET |
+| Model Intelligence | `multimodal({ inputType? })` | GET |
+| Model Intelligence | `structuredOutput({ strictOnly? })` | GET |
+| Cost & Batch | `promptCaching({ provider? })` | GET |
+| Cost & Batch | `batchApi({ provider? })` | GET |
+| Cost & Batch | `fineTuning({ provider? })` | GET |
+| Cost & Batch | `audioPricing({ type? })` | GET |
+| Cost & Batch | `reranking({ provider? })` | GET |
+| Cost & Batch | `taskCost({ taskType })` | GET |
+| Cost & Batch | `cachingGranularity({ provider? })` | GET |
+| Cost & Batch | `freeTier({ provider? })` | GET |
+| Cost & Batch | `tokenEstimate({ text })` | POST |
+| Cost & Batch | `costForecast({ requestsPerDay? })` | GET |
+| Trust & Compliance | `compliance({ provider? })` | GET |
+| Trust & Compliance | `dataRetention({ provider? })` | GET |
+| Trust & Compliance | `sla({ provider? })` | GET |
+| Trust & Compliance | `overflowBehaviour({ provider? })` | GET |
+| Trust & Compliance | `openaiCompat({ provider? })` | GET |
+| Trust & Compliance | `errorCodes({ provider? })` | GET |
+| Trust & Compliance | `rateLimitRecovery({ provider? })` | GET |
+| Trust & Compliance | `regions({ provider? })` | GET |
+| Trust & Compliance | `uptimeHistory({ provider })` | GET |
+| Trust & Compliance | `guardrails({ provider? })` | GET |
+| Trust & Compliance | `rateLimitStatus({ provider? })` | GET |
+| Trust & Compliance | `migrationGuide({ from?, to? })` | GET |
 
 ---
 

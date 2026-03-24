@@ -1,7 +1,7 @@
 {
   "name": "topnetworks",
-  "version": "1.1.1",
-  "description": "TypeScript SDK for TopNetworks — live AI provider health, latency, pricing, smart routing, and decision tools for 52+ providers. Zero dependencies.",
+  "version": "2.0.0",
+  "description": "TypeScript SDK for TopNetworks — 60 endpoints for AI provider intelligence. Health, routing, model intelligence, cost optimization, compliance. Zero dependencies.",
   "keywords": [
     "ai",
     "api",
