@@ -583,83 +583,48 @@ export interface QuotaCheckResponse {
   }[]
 }
 
-// ─── /api/v1/register (POST) ─────────────────────────────────────────────────
+// ─── /api/v1/attest (POST) ───────────────────────────────────────────────────
 
-export interface RegisterParams {
-  agentId: string
-  schemaVersion: string
-  integrityHash: string
-  description?: string
-  tags?: string[]
-  ttlHours?: number
-}
-
-export interface RegisterResponse {
-  id: string
-  agent_id: string
-  schema_version: string
-  integrity_hash: string
-  description: string | null
-  tags: string[] | null
-  registered_at: string
-  expires_at: string | null
-  verify_url: string
-}
-
-// ─── /api/v1/verify/{id} ────────────────────────────────────────────────────
-
-export interface VerifyParams {
-  hash?: string
-}
-
-export interface VerifyResponse {
-  valid: boolean
-  expired: boolean
-  hash_match: boolean | null
-  agent_id: string
-  schema_version: string
-  integrity_hash: string
-  description: string | null
-  registered_at: string
-  expires_at: string | null
-  verified_count: number
-}
-
-// ─── /api/v1/sign (POST) ────────────────────────────────────────────────────
-
-export interface SignParams {
-  signerId: string
-  payloadHash: string
+export interface AttestParams {
+  provider: string
+  model: string
+  output?: string
+  payloadHash?: string
+  agentId?: string
   metadata?: Record<string, unknown>
-  ttlHours?: number
 }
 
-export interface SignResponse {
-  id: string
-  signature: string
-  algorithm: string
-  signer_id: string
+export interface AttestResponse {
+  attestation_id: string
+  provider: string
+  model: string
   payload_hash: string
-  signed_at: string
-  expires_at: string | null
-  validate_url: string
+  agent_id: string | null
+  attested_at: string
+  verify_url: string
+  note: string
 }
 
-// ─── /api/v1/validate/{id} ──────────────────────────────────────────────────
+// ─── /api/v1/handoff (POST) ──────────────────────────────────────────────────
 
-export interface ValidateParams {
-  hash?: string
+export interface HandoffParams {
+  fromAgent: string
+  toAgent: string
+  taskId?: string
+  context?: string
+  contextHash?: string
+  metadata?: Record<string, unknown>
 }
 
-export interface ValidateResponse {
-  valid: boolean
-  signature_valid: boolean
-  hash_match: boolean | null
-  signer_id: string
-  payload_hash: string
-  signed_at: string
-  expires_at: string | null
-  validated_count: number
+export interface HandoffResponse {
+  handoff_id: string
+  from_agent: string
+  to_agent: string
+  task_id: string | null
+  context_hash: string | null
+  handed_off_at: string
+  verify_url: string
+  note: string
 }
 
 // ─── /api/v1/mcp (POST) ─────────────────────────────────────────────────────
@@ -1168,4 +1133,658 @@ export interface AudioPricingRecord {
 export interface AudioPricingResponse {
   audio_pricing: AudioPricingRecord[]
   meta: { total: number; stt_count: number; tts_count: number; realtime_count: number; filters: Record<string, unknown>; note: string; data_date: string }
+}
+
+// ─── /api/v1/json-mode ───────────────────────────────────────────────────────
+
+export interface JsonModeParams {
+  provider?: string
+  model?: string
+  schemaEnforcementOnly?: boolean
+  jsonModeOnly?: boolean
+}
+
+export interface JsonModeRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  json_object_supported: boolean
+  schema_enforcement_supported: boolean
+  strict_mode_supported: boolean
+  enforcement_method: string | null
+  workaround_required: boolean
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface JsonModeResponse {
+  json_mode: JsonModeRecord[]
+  meta: { total: number; schema_enforcement_count: number; json_object_count: number; no_native_support_count: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/streaming-latency ───────────────────────────────────────────────
+
+export interface StreamingLatencyParams {
+  provider?: string
+  model?: string
+  sort?: 'ttft' | 'tpt'
+}
+
+export interface StreamingLatencyRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  model_name: string
+  median_ttft_ms: number | null
+  p90_ttft_ms: number | null
+  median_tpt_ms: number | null
+  throughput_tokens_per_sec: number | null
+  benchmark_source: string | null
+  measured_at: string | null
+  notes: string | null
+}
+
+export interface StreamingLatencyResponse {
+  streaming_latency: StreamingLatencyRecord[]
+  meta: { total: number; data_type: string; sort: string; note: string; benchmark_source: string; data_date: string }
+}
+
+// ─── /api/v1/model-versions ──────────────────────────────────────────────────
+
+export interface ModelVersionsParams {
+  provider?: string
+  model?: string
+  pinnableOnly?: boolean
+  hasBreakingChanges?: boolean
+}
+
+export interface ModelVersionRecord {
+  provider_id: string
+  provider_name: string
+  alias: string
+  alias_auto_updates: boolean
+  current_pinned_version: string | null
+  pinnable: boolean
+  versions: { version_id: string; released_at: string | null; notes: string | null }[]
+  breaking_changes: { version_id: string; description: string }[]
+  lifecycle_policy_url: string | null
+}
+
+export interface ModelVersionsResponse {
+  model_versions: ModelVersionRecord[]
+  meta: { total: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/websocket-support ───────────────────────────────────────────────
+
+export interface WebSocketSupportParams {
+  provider?: string
+  websocketOnly?: boolean
+  category?: 'llm' | 'tts' | 'stt'
+}
+
+export interface WebSocketSupportRecord {
+  provider_id: string
+  provider_name: string
+  websocket_supported: boolean
+  streaming_method: string
+  also_supports_sse: boolean
+  use_case: string
+  websocket_endpoint: string | null
+  supported_models: string[]
+  auth_method: string | null
+  multiplexing_supported: boolean
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface WebSocketSupportResponse {
+  websocket_support: WebSocketSupportRecord[]
+  meta: { total: number; websocket_count: number; sse_only_count: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/task-cost ───────────────────────────────────────────────────────
+
+export type TaskCostType = 'chat' | 'embedding' | 'image' | 'audio' | 'search'
+
+export interface TaskCostParams {
+  taskType: TaskCostType
+  inputTokens?: number
+  outputTokens?: number
+  cachedTokens?: number
+  limit?: number
+  freeOnly?: boolean
+}
+
+export interface TaskCostProvider {
+  rank: number
+  provider_id: string
+  provider_name: string
+  model: string
+  estimated_cost_usd: number
+  input_cost_usd: number
+  output_cost_usd: number
+  input_per_1m_usd: number | null
+  output_per_1m_usd: number | null
+  pct_more_expensive_than_cheapest: number
+  free_tier: boolean
+  pricing_url: string | null
+}
+
+export interface TaskCostResponse {
+  task_type: TaskCostType
+  input_tokens: number
+  output_tokens: number
+  cached_tokens: number
+  providers_ranked: TaskCostProvider[]
+  meta: { total: number; showing: number; cheapest_provider: string | null; most_expensive_provider: string | null; price_range_usd: { min: number; max: number } | null; note: string; data_date: string }
+}
+
+// ─── /api/v1/caching-granularity ─────────────────────────────────────────────
+
+export interface CachingGranularityParams {
+  provider?: string
+  supportsCaching?: boolean
+}
+
+export interface CachingGranularityRecord {
+  provider_id: string
+  provider_name: string
+  caching_supported: boolean
+  caching_type: string | null
+  cacheable_elements: string[]
+  elements_cache_independently: boolean
+  min_tokens_per_block: number | null
+  max_cache_breakpoints: number | null
+  ttl_options_seconds: number[]
+  default_ttl_seconds: number | null
+  cached_price_pct_of_input: number | null
+  requires_explicit_markup: boolean
+  markup_method: string | null
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface CachingGranularityResponse {
+  caching_granularity: CachingGranularityRecord[]
+  meta: { total: number; caching_supported_count: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/free-tier ───────────────────────────────────────────────────────
+
+export interface FreeTierParams {
+  provider?: string
+  permanentOnly?: boolean
+  hasFreeTier?: boolean
+}
+
+export interface FreeTierRecord {
+  provider_id: string
+  provider_name: string
+  has_free_tier: boolean
+  tier_type: 'permanent' | 'trial_credit' | 'none'
+  requires_credit_card: boolean
+  included_models: string[]
+  monthly_token_cap: number | null
+  monthly_request_cap: number | null
+  daily_request_cap: number | null
+  trial_credit_usd: number | null
+  trial_credit_recurring: boolean
+  rate_limits_apply: boolean
+  rate_limits_url: string | null
+  changelog: { date: string; change: string }[]
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface FreeTierResponse {
+  free_tiers: FreeTierRecord[]
+  meta: { total: number; permanent_free_count: number; trial_credit_count: number; no_free_access_count: number; see_also: string; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/error-codes ─────────────────────────────────────────────────────
+
+export interface ErrorCodesParams {
+  provider?: string
+  category?: string
+  retryableOnly?: boolean
+  httpStatus?: number
+}
+
+export interface ErrorCodeRecord {
+  provider_id: string
+  provider_name: string
+  http_status: number
+  provider_error_type: string | null
+  provider_error_code: string | null
+  standard_category: string
+  retryable: boolean
+  recommended_backoff_ms: number | null
+  max_retries: number | null
+  resolution: string | null
+  notes: string | null
+}
+
+export interface ErrorCodesResponse {
+  error_codes: ErrorCodeRecord[]
+  meta: { total: number; categories: string[]; retryable_count: number; non_retryable_count: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/rate-limit-recovery ─────────────────────────────────────────────
+
+export interface RateLimitRecoveryParams {
+  provider?: string
+}
+
+export interface RateLimitRecoveryRecord {
+  provider_id: string
+  provider_name: string
+  retry_after_header: string | null
+  retry_after_format: string | null
+  reset_headers: string[]
+  reset_header_format: string | null
+  rpm_window_type: string | null
+  tpm_window_type: string | null
+  recommended_strategy: string
+  base_delay_ms: number | null
+  max_delay_ms: number | null
+  jitter: boolean
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface RateLimitRecoveryResponse {
+  rate_limit_recovery: RateLimitRecoveryRecord[]
+  meta: { total: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/regions ─────────────────────────────────────────────────────────
+
+export interface RegionsParams {
+  provider?: string
+  region?: string
+  model?: string
+  euOnly?: boolean
+}
+
+export interface InferenceRegion {
+  region_id: string
+  region_name: string
+  cloud: string | null
+  models: string[] | null
+}
+
+export interface RegionsRecord {
+  provider_id: string
+  provider_name: string
+  inference_regions: InferenceRegion[]
+  geographies: string[]
+  eu_available: boolean
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface RegionsResponse {
+  regions: RegionsRecord[]
+  meta: { total: number; eu_available_count: number; us_available_count: number; ap_available_count: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/uptime-history ──────────────────────────────────────────────────
+
+export interface UptimeHistoryParams {
+  provider: string
+  period?: '7d' | '30d' | '90d'
+}
+
+export interface UptimeDayRecord {
+  date: string
+  uptime_pct: number
+  total_checks: number
+  outage_checks: number
+}
+
+export interface UptimeHistoryResponse {
+  provider: string
+  provider_name: string
+  period: string
+  granularity: string
+  overall_uptime_pct: number | null
+  sla_target: number | null
+  sla_met: boolean | null
+  timeline: UptimeDayRecord[]
+  incidents_in_period: number
+  meta: { period_days: number; data_from: string | null; data_to: string | null; note: string }
+}
+
+// ─── /api/v1/context-window ──────────────────────────────────────────────────
+
+export interface ContextWindowParams {
+  provider?: string
+  model?: string
+  minContext?: number
+  effectiveOnly?: boolean
+}
+
+export interface ContextWindowRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  advertised_context: number
+  effective_context: number | null
+  recommended_max_fill: number | null
+  usable_tokens: number | null
+  shared_context: boolean
+  degradation_note: string | null
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface ContextWindowResponse {
+  context_windows: ContextWindowRecord[]
+  meta: { total: number; largest_advertised: number; largest_effective: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/thinking-support ────────────────────────────────────────────────
+
+export interface ThinkingSupportParams {
+  provider?: string
+  model?: string
+  supportedOnly?: boolean
+  visibleThinking?: boolean
+  budgetConfigurable?: boolean
+}
+
+export interface ThinkingSupportRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  thinking_supported: boolean
+  thinking_visible: boolean
+  thinking_param: string | null
+  thinking_pricing: string | null
+  thinking_cost_per_1m: number | null
+  budget_configurable: boolean
+  budget_param: string | null
+  default_behavior: string | null
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface ThinkingSupportResponse {
+  thinking_support: ThinkingSupportRecord[]
+  meta: { total: number; thinking_capable: number; visible_thinking: number; budget_configurable: number; always_on: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/multimodal ──────────────────────────────────────────────────────
+
+export interface MultimodalParams {
+  provider?: string
+  model?: string
+  inputType?: 'text' | 'image' | 'audio' | 'video' | 'pdf'
+  outputType?: 'text' | 'image' | 'audio'
+}
+
+export interface MultimodalRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  inputs: string[]
+  outputs: string[]
+  max_images: number | null
+  max_image_size_mb: number | null
+  supported_image_formats: string[]
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface MultimodalResponse {
+  multimodal: MultimodalRecord[]
+  meta: { total: number; vision_capable: number; audio_input: number; video_input: number; pdf_input: number; image_output: number; audio_output: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/structured-output ───────────────────────────────────────────────
+
+export interface StructuredOutputParams {
+  provider?: string
+  model?: string
+  strictOnly?: boolean
+  constrainedDecoding?: boolean
+  schemaSupported?: boolean
+}
+
+export interface StructuredOutputRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  json_schema_supported: boolean
+  strict_enforcement: boolean
+  constrained_decoding: boolean
+  response_format_param: string | null
+  max_schema_depth: number | null
+  supported_schema_features: string[]
+  failure_mode: string | null
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface StructuredOutputResponse {
+  structured_output: StructuredOutputRecord[]
+  meta: { total: number; schema_supported: number; strict_enforcement: number; constrained_decoding: number; no_structured_output: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/token-estimate (POST) ───────────────────────────────────────────
+
+export interface TokenEstimateParams {
+  text: string
+  provider?: string
+  model?: string
+}
+
+export interface TokenizerEstimate {
+  tokenizer: string
+  tokenizer_name: string
+  estimated_tokens: number
+  providers: string[]
+}
+
+export interface SingleProviderTokenEstimate {
+  provider_id: string
+  provider_name: string
+  model: string | null
+  tokenizer: string
+  estimated_tokens: number
+  confidence: string
+  margin_of_error: string
+  token_range: { low: number; high: number }
+}
+
+export interface TokenEstimateResponse {
+  // Multi-tokenizer response (no provider specified)
+  estimates?: TokenizerEstimate[]
+  summary?: { min_tokens: number; max_tokens: number; avg_tokens: number }
+  // Single provider response
+  estimate?: SingleProviderTokenEstimate
+  input: { char_count: number; word_count: number }
+  meta: { method: string; confidence?: string; margin_of_error?: string; note: string; max_input_chars?: number; data_date: string }
+}
+
+// ─── /api/v1/cost-forecast ───────────────────────────────────────────────────
+
+export interface CostForecastParams {
+  provider?: string
+  task?: string
+  requestsPerDay?: number
+  avgInputTokens?: number
+  avgOutputTokens?: number
+  cacheHitRate?: number
+  limit?: number
+}
+
+export interface CostForecastRecord {
+  provider_id: string
+  provider_name: string
+  model: string
+  daily_cost: number
+  weekly_cost: number
+  monthly_cost: number
+  yearly_cost: number
+  cost_breakdown: { daily_input_cost: number; daily_output_cost: number; cache_savings_per_day: number }
+  pricing: { input_per_1m: number; output_per_1m: number; caching_available: boolean }
+}
+
+export interface CostForecastResponse {
+  forecasts: CostForecastRecord[]
+  usage_profile: { task: string; requests_per_day: number; avg_input_tokens: number; avg_output_tokens: number; cache_hit_rate: number; daily_total_tokens: number; monthly_total_tokens: number }
+  meta: { total: number; cheapest_daily: number | null; cheapest_provider: string | null; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/guardrails ──────────────────────────────────────────────────────
+
+export interface GuardrailsParams {
+  provider?: string
+  configurableOnly?: boolean
+  canDisable?: boolean
+  category?: string
+}
+
+export interface GuardrailsRecord {
+  provider_id: string
+  provider_name: string
+  safety_filters_enabled: boolean
+  configurable: boolean
+  filter_categories: string[]
+  strictness_levels: string[]
+  can_disable: boolean
+  false_positive_risk: 'low' | 'medium' | 'high' | null
+  content_policy_url: string | null
+  notes: string | null
+}
+
+export interface GuardrailsResponse {
+  guardrails: GuardrailsRecord[]
+  meta: { total: number; filters_enabled: number; configurable: number; can_disable: number; no_filters: number; high_false_positive: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/rate-limit-status ───────────────────────────────────────────────
+
+export interface RateLimitStatusParams {
+  provider?: string
+}
+
+export interface RateLimitStatusRecord {
+  provider_id: string
+  provider_name: string
+  congestion: 'low' | 'moderate' | 'high' | 'critical'
+  avg_response_time_ms: number | null
+  p95_response_time_ms: number | null
+  response_time_trend: number
+  error_rate_1h: number
+  samples_1h: number
+  published_limits: { rpm: number | null; tpm: number | null; tier: string } | null
+  recommendation: string
+  last_checked: string | null
+}
+
+export interface RateLimitStatusResponse {
+  rate_limit_status: RateLimitStatusRecord[]
+  meta: { total: number; critical: number; high: number; moderate: number; low: number; window: string; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/migration-guide ─────────────────────────────────────────────────
+
+export interface MigrationGuideParams {
+  from?: string
+  to?: string
+  maxDifficulty?: 'drop_in' | 'easy' | 'moderate' | 'hard'
+  dropInOnly?: boolean
+}
+
+export interface MigrationGuideRecord {
+  from_provider: string
+  from_provider_name: string
+  to_provider: string
+  to_provider_name: string
+  difficulty: 'drop_in' | 'easy' | 'moderate' | 'hard'
+  openai_compat: boolean
+  param_changes: { param: string; from_value: string; to_value: string }[]
+  missing_features: string[]
+  response_format_changes: string[]
+  auth_change: string | null
+  gotchas: string[]
+  notes: string | null
+}
+
+export interface MigrationGuideResponse {
+  migration_guides: MigrationGuideRecord[]
+  meta: { total: number; drop_in_count: number; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/sdk-support ─────────────────────────────────────────────────────
+
+export interface SdkSupportParams {
+  provider?: string
+  language?: string
+  officialOnly?: boolean
+  openaiCompatOnly?: boolean
+}
+
+export interface SdkRecord {
+  language: string
+  official: boolean
+  package_name: string | null
+  repo_url: string | null
+  openai_compat: boolean
+  notes: string | null
+}
+
+export interface SdkSupportRecord {
+  provider_id: string
+  provider_name: string
+  openai_compat_sdk: boolean
+  sdk_count: number
+  languages: string[]
+  sdks: SdkRecord[]
+  notes: string | null
+}
+
+export interface SdkSupportResponse {
+  sdk_support: SdkSupportRecord[]
+  meta: { total: number; openai_compat_count: number; available_languages: string[]; filters: Record<string, unknown>; data_date: string }
+}
+
+// ─── /api/v1/changelog/api ───────────────────────────────────────────────────
+
+export type ApiChangeType = 'new_model' | 'deprecation' | 'pricing_change' | 'feature_added' | 'feature_removed' | 'breaking_change' | 'rate_limit_change'
+export type ApiChangeImpact = 'high' | 'medium' | 'low'
+
+export interface ApiChangelogParams {
+  provider?: string
+  type?: ApiChangeType
+  impact?: ApiChangeImpact
+  days?: number
+  limit?: number
+}
+
+export interface ApiChangelogEntry {
+  date: string
+  provider_id: string
+  provider_name: string
+  change_type: ApiChangeType
+  title: string
+  description: string
+  impact: ApiChangeImpact
+  affected_models: string[]
+  source_url: string | null
+}
+
+export interface ApiChangelogResponse {
+  changelog: ApiChangelogEntry[]
+  meta: {
+    total: number
+    period_days: number
+    by_type: { new_model: number; deprecation: number; pricing_change: number; feature_added: number; breaking_change: number; rate_limit_change: number }
+    by_impact: { high: number; medium: number; low: number }
+    filters: Record<string, unknown>
+    data_date: string
+  }
 }

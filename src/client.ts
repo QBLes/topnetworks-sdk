@@ -33,14 +33,10 @@ import type {
   BenchmarksResponse,
   QuotaCheckParams,
   QuotaCheckResponse,
-  RegisterParams,
-  RegisterResponse,
-  VerifyParams,
-  VerifyResponse,
-  SignParams,
-  SignResponse,
-  ValidateParams,
-  ValidateResponse,
+  AttestParams,
+  AttestResponse,
+  HandoffParams,
+  HandoffResponse,
   McpResponse,
   WebhookSubscribeParams,
   WebhookSubscribeResponse,
@@ -78,6 +74,50 @@ import type {
   RerankingResponse,
   AudioPricingParams,
   AudioPricingResponse,
+  JsonModeParams,
+  JsonModeResponse,
+  StreamingLatencyParams,
+  StreamingLatencyResponse,
+  ModelVersionsParams,
+  ModelVersionsResponse,
+  WebSocketSupportParams,
+  WebSocketSupportResponse,
+  TaskCostParams,
+  TaskCostResponse,
+  CachingGranularityParams,
+  CachingGranularityResponse,
+  FreeTierParams,
+  FreeTierResponse,
+  ErrorCodesParams,
+  ErrorCodesResponse,
+  RateLimitRecoveryParams,
+  RateLimitRecoveryResponse,
+  RegionsParams,
+  RegionsResponse,
+  UptimeHistoryParams,
+  UptimeHistoryResponse,
+  ContextWindowParams,
+  ContextWindowResponse,
+  ThinkingSupportParams,
+  ThinkingSupportResponse,
+  MultimodalParams,
+  MultimodalResponse,
+  StructuredOutputParams,
+  StructuredOutputResponse,
+  TokenEstimateParams,
+  TokenEstimateResponse,
+  CostForecastParams,
+  CostForecastResponse,
+  GuardrailsParams,
+  GuardrailsResponse,
+  RateLimitStatusParams,
+  RateLimitStatusResponse,
+  MigrationGuideParams,
+  MigrationGuideResponse,
+  SdkSupportParams,
+  SdkSupportResponse,
+  ApiChangelogParams,
+  ApiChangelogResponse,
 } from './types.js'
 
 const DEFAULT_BASE_URL = 'https://topnetworks.com'
@@ -321,36 +361,28 @@ export class TopNetworks {
 
   // ── Trust & Identity ─────────────────────────────────────────────────────
 
-  /** Register an agent output contract. Returns a verifiable ID. */
-  async register(params: RegisterParams): Promise<RegisterResponse> {
-    return this.post('/api/v1/register', {
-      agent_id: params.agentId,
-      schema_version: params.schemaVersion,
-      integrity_hash: params.integrityHash,
-      description: params.description,
-      tags: params.tags,
-      ttl_hours: params.ttlHours,
-    })
-  }
-
-  /** Verify a registered contract by ID. */
-  async verify(id: string, params: VerifyParams = {}): Promise<VerifyResponse> {
-    return this.get(`/api/v1/verify/${encodeURIComponent(id)}`, params)
-  }
-
-  /** Sign an input payload hash. Get a tamper-evident HMAC receipt. */
-  async sign(params: SignParams): Promise<SignResponse> {
-    return this.post('/api/v1/sign', {
-      signer_id: params.signerId,
+  /** Attest that a specific output was produced by a specific model. */
+  async attest(params: AttestParams): Promise<AttestResponse> {
+    return this.post('/api/v1/attest', {
+      provider: params.provider,
+      model: params.model,
+      output: params.output,
       payload_hash: params.payloadHash,
+      agent_id: params.agentId,
       metadata: params.metadata,
-      ttl_hours: params.ttlHours,
     })
   }
 
-  /** Validate a signed HMAC receipt. */
-  async validate(id: string, params: ValidateParams = {}): Promise<ValidateResponse> {
-    return this.get(`/api/v1/validate/${encodeURIComponent(id)}`, params)
+  /** Record an agent-to-agent task handoff for audit trail. */
+  async handoff(params: HandoffParams): Promise<HandoffResponse> {
+    return this.post('/api/v1/handoff', {
+      from_agent: params.fromAgent,
+      to_agent: params.toAgent,
+      task_id: params.taskId,
+      context: params.context,
+      context_hash: params.contextHash,
+      metadata: params.metadata,
+    })
   }
 
   // ── Developer Tools ──────────────────────────────────────────────────────
@@ -525,5 +557,193 @@ export class TopNetworks {
    */
   async openaiCompat(params: OpenAICompatParams = {}): Promise<OpenAICompatResponse> {
     return this.get('/api/v1/openai-compat', params)
+  }
+
+  // ── Model Intelligence (new) ─────────────────────────────────────────────
+
+  /**
+   * JSON output mode support per provider/model.
+   * json_object, strict schema enforcement, workaround requirements.
+   */
+  async jsonMode(params: JsonModeParams = {}): Promise<JsonModeResponse> {
+    return this.get('/api/v1/json-mode', toSnakeParams(params))
+  }
+
+  /**
+   * TTFT and throughput benchmarks from curated sources.
+   * Sort by ttft (default) or tpt (tokens-per-second).
+   */
+  async streamingLatency(params: StreamingLatencyParams = {}): Promise<StreamingLatencyResponse> {
+    return this.get('/api/v1/streaming-latency', params)
+  }
+
+  /**
+   * Model version history and pinning.
+   * Version history, release dates, breaking changes, pinnable snapshots.
+   */
+  async modelVersions(params: ModelVersionsParams = {}): Promise<ModelVersionsResponse> {
+    return this.get('/api/v1/model-versions', toSnakeParams(params))
+  }
+
+  /**
+   * WebSocket vs SSE streaming support per provider.
+   * WebSocket endpoints, auth methods, multiplexing, use case.
+   */
+  async websocketSupport(params: WebSocketSupportParams = {}): Promise<WebSocketSupportResponse> {
+    return this.get('/api/v1/websocket-support', toSnakeParams(params))
+  }
+
+  /**
+   * Context window sizes — advertised vs effective (tested).
+   * Includes recommended max fill percentage and degradation notes.
+   */
+  async contextWindow(params: ContextWindowParams = {}): Promise<ContextWindowResponse> {
+    return this.get('/api/v1/context-window', toSnakeParams(params))
+  }
+
+  /**
+   * Extended thinking / reasoning mode support per model.
+   * Parameter names, pricing, visibility, budget configuration.
+   */
+  async thinkingSupport(params: ThinkingSupportParams = {}): Promise<ThinkingSupportResponse> {
+    return this.get('/api/v1/thinking-support', toSnakeParams(params))
+  }
+
+  /**
+   * Input/output modality matrix per model.
+   * Which models accept images, audio, video, PDF; which output images or audio.
+   */
+  async multimodal(params: MultimodalParams = {}): Promise<MultimodalResponse> {
+    return this.get('/api/v1/multimodal', toSnakeParams(params))
+  }
+
+  /**
+   * Structured output / JSON schema enforcement per model.
+   * Strict enforcement, constrained decoding, supported schema features.
+   */
+  async structuredOutput(params: StructuredOutputParams = {}): Promise<StructuredOutputResponse> {
+    return this.get('/api/v1/structured-output', toSnakeParams(params))
+  }
+
+  // ── Cost & Batch (new) ───────────────────────────────────────────────────
+
+  /**
+   * Rank all providers by total cost for a task type.
+   * All providers cheapest-first for a given task and token count.
+   */
+  async taskCost(params: TaskCostParams): Promise<TaskCostResponse> {
+    return this.get('/api/v1/task-cost', toSnakeParams(params))
+  }
+
+  /**
+   * Prompt caching mechanics per provider.
+   * Cacheable elements, min tokens, TTL, automatic vs explicit, savings.
+   */
+  async cachingGranularity(params: CachingGranularityParams = {}): Promise<CachingGranularityResponse> {
+    return this.get('/api/v1/caching-granularity', toSnakeParams(params))
+  }
+
+  /**
+   * Free tier breakdown per provider.
+   * Permanent vs trial credit, caps, included models, changelog.
+   */
+  async freeTier(params: FreeTierParams = {}): Promise<FreeTierResponse> {
+    return this.get('/api/v1/free-tier', toSnakeParams(params))
+  }
+
+  /**
+   * Estimate token count across provider tokenizers (POST).
+   * ±10% accuracy. Max 50,000 characters.
+   */
+  async tokenEstimate(params: TokenEstimateParams): Promise<TokenEstimateResponse> {
+    return this.post('/api/v1/token-estimate', {
+      text: params.text,
+      provider: params.provider,
+      model: params.model,
+    })
+  }
+
+  /**
+   * Project daily/weekly/monthly costs for a usage pattern.
+   * Budget planning across providers with cache savings projection.
+   */
+  async costForecast(params: CostForecastParams = {}): Promise<CostForecastResponse> {
+    return this.get('/api/v1/cost-forecast', toSnakeParams(params))
+  }
+
+  // ── Trust & Compliance (new) ─────────────────────────────────────────────
+
+  /**
+   * Cross-provider error code taxonomy.
+   * Maps native error formats to standard categories with retry guidance.
+   */
+  async errorCodes(params: ErrorCodesParams = {}): Promise<ErrorCodesResponse> {
+    return this.get('/api/v1/error-codes', toSnakeParams(params))
+  }
+
+  /**
+   * 429 recovery guide per provider.
+   * Retry headers, reset window semantics, recommended backoff strategy.
+   */
+  async rateLimitRecovery(params: RateLimitRecoveryParams = {}): Promise<RateLimitRecoveryResponse> {
+    return this.get('/api/v1/rate-limit-recovery', params)
+  }
+
+  /**
+   * Inference regions per provider.
+   * Geographic regions, EU availability, per-model region matrices.
+   */
+  async regions(params: RegionsParams = {}): Promise<RegionsResponse> {
+    return this.get('/api/v1/regions', toSnakeParams(params))
+  }
+
+  /**
+   * Daily uptime % timeseries — 7/30/90 day from live polling.
+   * Requires provider param. Includes SLA comparison.
+   */
+  async uptimeHistory(params: UptimeHistoryParams): Promise<UptimeHistoryResponse> {
+    return this.get('/api/v1/uptime-history', toSnakeParams(params))
+  }
+
+  /**
+   * Content filtering and safety config per provider.
+   * Answers "will this provider block my medical/security/research content?"
+   */
+  async guardrails(params: GuardrailsParams = {}): Promise<GuardrailsResponse> {
+    return this.get('/api/v1/guardrails', toSnakeParams(params))
+  }
+
+  /**
+   * Live congestion and rate limit pressure per provider.
+   * Real-time congestion: low/moderate/high/critical from polling data.
+   */
+  async rateLimitStatus(params: RateLimitStatusParams = {}): Promise<RateLimitStatusResponse> {
+    return this.get('/api/v1/rate-limit-status', params)
+  }
+
+  /**
+   * Provider migration guide — parameter mapping and gotchas.
+   * When switching from provider A to B: param changes, missing features, auth diffs.
+   */
+  async migrationGuide(params: MigrationGuideParams): Promise<MigrationGuideResponse> {
+    return this.get('/api/v1/migration-guide', toSnakeParams(params))
+  }
+
+  // ── Developer Tools (new) ────────────────────────────────────────────────
+
+  /**
+   * Official SDK availability per provider by language.
+   * Official vs community, OpenAI-compatible flag, package names and repo URLs.
+   */
+  async sdkSupport(params: SdkSupportParams = {}): Promise<SdkSupportResponse> {
+    return this.get('/api/v1/sdk-support', toSnakeParams(params))
+  }
+
+  /**
+   * Cross-provider API changelog — new models, deprecations, pricing changes.
+   * Meta-changelog tracking API surface changes across all providers.
+   */
+  async apiChangelog(params: ApiChangelogParams = {}): Promise<ApiChangelogResponse> {
+    return this.get('/api/v1/changelog/api', toSnakeParams(params))
   }
 }
