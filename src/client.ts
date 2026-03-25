@@ -118,6 +118,36 @@ import type {
   SdkSupportResponse,
   ApiChangelogParams,
   ApiChangelogResponse,
+  AgentProtocolsParams,
+  AgentProtocolsResponse,
+  KnowledgeCutoffParams,
+  KnowledgeCutoffResponse,
+  ToolCallFormatParams,
+  ToolCallFormatResponse,
+  StreamingProtocolsParams,
+  StreamingProtocolsResponse,
+  OutputReproducibilityParams,
+  OutputReproducibilityResponse,
+  NativeToolsParams,
+  NativeToolsResponse,
+  ModelTaskFitParams,
+  ModelTaskFitResponse,
+  PiiHandlingParams,
+  PiiHandlingResponse,
+  ContextCompressionParams,
+  ContextCompressionResponse,
+  SecurityCertificationsParams,
+  SecurityCertificationsResponse,
+  SemanticCachingParams,
+  SemanticCachingResponse,
+  McpSupportParams,
+  McpSupportResponse,
+  ModelLifecycleParams,
+  ModelLifecycleResponse,
+  DelegationSupportParams,
+  DelegationSupportResponse,
+  PromptModerationParams,
+  PromptModerationResponse,
 } from './types.js'
 
 const DEFAULT_BASE_URL = 'https://topnetworks.com'
@@ -745,5 +775,82 @@ export class TopNetworks {
    */
   async apiChangelog(params: ApiChangelogParams = {}): Promise<ApiChangelogResponse> {
     return this.get('/api/v1/changelog/api', toSnakeParams(params))
+  }
+
+  // ─── Agent Intelligence ────────────────────────────────────────────────────
+
+  /** Which agent protocols (MCP, A2A, ACP, etc.) each provider supports */
+  agentProtocols(params?: AgentProtocolsParams): Promise<AgentProtocolsResponse> {
+    return this.get<AgentProtocolsResponse>('/api/v1/agent-protocols', params)
+  }
+
+  /** Training data knowledge cutoff dates per model */
+  knowledgeCutoff(params?: KnowledgeCutoffParams): Promise<KnowledgeCutoffResponse> {
+    return this.get<KnowledgeCutoffResponse>('/api/v1/knowledge-cutoff', params)
+  }
+
+  /** Exact message role/format required for tool calls per provider */
+  toolCallFormat(params?: ToolCallFormatParams): Promise<ToolCallFormatResponse> {
+    return this.get<ToolCallFormatResponse>('/api/v1/tool-call-format', params)
+  }
+
+  /** Streaming protocol details — SSE vs WebSocket, events, quirks */
+  streamingProtocols(params?: StreamingProtocolsParams): Promise<StreamingProtocolsResponse> {
+    return this.get<StreamingProtocolsResponse>('/api/v1/streaming-protocols', params)
+  }
+
+  /** Seed parameter support and deterministic output guarantees per provider */
+  outputReproducibility(params?: OutputReproducibilityParams): Promise<OutputReproducibilityResponse> {
+    return this.get<OutputReproducibilityResponse>('/api/v1/output-reproducibility', params)
+  }
+
+  /** Native built-in tools each provider offers (web search, code interpreter, etc.) */
+  nativeTools(params?: NativeToolsParams): Promise<NativeToolsResponse> {
+    return this.get<NativeToolsResponse>('/api/v1/native-tools', params)
+  }
+
+  /** Curated task suitability scores per model (code, reasoning, RAG, etc.) */
+  modelTaskFit(params?: ModelTaskFitParams): Promise<ModelTaskFitResponse> {
+    return this.get<ModelTaskFitResponse>('/api/v1/model-task-fit', params)
+  }
+
+  /** Native PII detection and redaction capabilities per provider */
+  piiHandling(params?: PiiHandlingParams): Promise<PiiHandlingResponse> {
+    return this.get<PiiHandlingResponse>('/api/v1/pii-handling', params)
+  }
+
+  /** Native context compression support per provider */
+  contextCompression(params?: ContextCompressionParams): Promise<ContextCompressionResponse> {
+    return this.get<ContextCompressionResponse>('/api/v1/context-compression', params)
+  }
+
+  /** Security certifications per provider (SOC2, ISO27001, HIPAA, FedRAMP, etc.) */
+  securityCertifications(params?: SecurityCertificationsParams): Promise<SecurityCertificationsResponse> {
+    return this.get<SecurityCertificationsResponse>('/api/v1/security-certifications', params)
+  }
+
+  /** Semantic (similarity-based) caching support per provider */
+  semanticCaching(params?: SemanticCachingParams): Promise<SemanticCachingResponse> {
+    return this.get<SemanticCachingResponse>('/api/v1/semantic-caching', params)
+  }
+
+  /** Provider MCP client/server compliance — distinct from TopNetworks own MCP server */
+  mcpSupport(params?: McpSupportParams): Promise<McpSupportResponse> {
+    return this.get<McpSupportResponse>('/api/v1/mcp-support', params)
+  }
+
+  /** Model lifecycle stage — GA, beta, preview, deprecated, sunset */
+  modelLifecycle(params?: ModelLifecycleParams): Promise<ModelLifecycleResponse> {
+    return this.get<ModelLifecycleResponse>('/api/v1/model-lifecycle', params)
+  }
+
+  /** Secure agent delegation semantics support (A2A, MCP, IAM-based) */
+  delegationSupport(params?: DelegationSupportParams): Promise<DelegationSupportResponse> {
+    return this.get<DelegationSupportResponse>('/api/v1/delegation-support', params)
+  }
+
+  /** Provider native input-side prompt moderation and injection detection */
+  promptModeration(params?: PromptModerationParams): Promise<PromptModerationResponse> {
+    return this.get<PromptModerationResponse>('/api/v1/prompt-moderation', params)
   }
 }

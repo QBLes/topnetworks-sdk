@@ -1,7 +1,7 @@
 {
   "name": "topnetworks",
-  "version": "2.0.0",
-  "description": "TypeScript SDK for TopNetworks — 60 endpoints for AI provider intelligence. Health, routing, model intelligence, cost optimization, compliance. Zero dependencies.",
+  "version": "2.1.0",
+  "description": "TypeScript SDK for TopNetworks — 75 endpoints for AI provider intelligence. Health, routing, model intelligence, cost optimization, compliance. Zero dependencies.",
   "keywords": [
     "ai",
     "api",
@@ -19,7 +19,9 @@
     "agent",
     "mcp",
     "status",
-    "topnetworks"
+    "topnetworks",
+    "agent-protocols",
+    "security"
   ],
   "license": "MIT",
   "author": "TopNetworks <hello@topnetworks.com> (https://topnetworks.com)",

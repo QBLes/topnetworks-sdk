@@ -1788,3 +1788,382 @@ export interface ApiChangelogResponse {
     data_date: string
   }
 }
+
+// ─── /api/v1/agent-protocols ─────────────────────────────────────────────────
+
+export interface AgentProtocolsParams {
+  provider?: string
+  protocol?: 'MCP' | 'A2A' | 'ACP' | 'ANP' | 'OAP' | 'custom'
+  support_level?: 'native' | 'partial' | 'planned' | 'none'
+}
+
+export interface AgentProtocolRecord {
+  provider_id: string
+  provider_name: string
+  protocol: string
+  support_level: 'native' | 'partial' | 'planned' | 'none'
+  version: string | null
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface AgentProtocolsResponse {
+  agent_protocols: AgentProtocolRecord[]
+  meta: { total: number; filters: AgentProtocolsParams; data_date: string }
+}
+
+// ─── /api/v1/knowledge-cutoff ────────────────────────────────────────────────
+
+export interface KnowledgeCutoffParams {
+  provider?: string
+  model?: string
+  after?: string
+  before?: string
+}
+
+export interface KnowledgeCutoffRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  cutoff_date: string | null
+  cutoff_approximate: boolean
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface KnowledgeCutoffResponse {
+  knowledge_cutoffs: KnowledgeCutoffRecord[]
+  meta: { total: number; filters: KnowledgeCutoffParams; data_date: string }
+}
+
+// ─── /api/v1/tool-call-format ────────────────────────────────────────────────
+
+export interface ToolCallFormatParams {
+  provider?: string
+  model?: string
+}
+
+export interface ToolCallFormatRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string | null
+  role_order: string[]
+  tool_call_role: string
+  tool_result_role: string
+  tool_result_content_key: string
+  parallel_tool_calls: boolean
+  strict_role_ordering: boolean
+  tool_schema_format: string
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface ToolCallFormatResponse {
+  tool_call_formats: ToolCallFormatRecord[]
+  meta: { total: number; filters: ToolCallFormatParams; data_date: string }
+}
+
+// ─── /api/v1/streaming-protocols ─────────────────────────────────────────────
+
+export interface StreamingProtocolsParams {
+  provider?: string
+  protocol?: 'SSE' | 'WebSocket'
+}
+
+export interface StreamingProtocolRecord {
+  provider_id: string
+  provider_name: string
+  primary_protocol: 'SSE' | 'WebSocket' | 'both'
+  sse_supported: boolean
+  websocket_supported: boolean
+  supported_events: string[]
+  stream_end_signal: string | null
+  realtime_api: boolean
+  known_quirks: string | null
+  docs_url: string | null
+}
+
+export interface StreamingProtocolsResponse {
+  streaming_protocols: StreamingProtocolRecord[]
+  meta: { total: number; filters: StreamingProtocolsParams; data_date: string }
+}
+
+// ─── /api/v1/output-reproducibility ──────────────────────────────────────────
+
+export interface OutputReproducibilityParams {
+  provider?: string
+  deterministic_only?: boolean
+}
+
+export interface OutputReproducibilityRecord {
+  provider_id: string
+  provider_name: string
+  seed_supported: boolean
+  seed_param: string | null
+  deterministic_guarantee: 'strong' | 'best_effort' | 'none'
+  same_hardware_required: boolean
+  system_fingerprint_exposed: boolean
+  known_variability_factors: string[]
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface OutputReproducibilityResponse {
+  output_reproducibility: OutputReproducibilityRecord[]
+  meta: { total: number; filters: OutputReproducibilityParams; data_date: string }
+}
+
+// ─── /api/v1/native-tools ────────────────────────────────────────────────────
+
+export interface NativeToolsParams {
+  provider?: string
+  tool_type?: 'web_search' | 'code_interpreter' | 'image_generation' | 'image_input' | 'file_search' | 'computer_use' | 'memory' | 'other'
+  model?: string
+}
+
+export interface NativeToolRecord {
+  provider_id: string
+  provider_name: string
+  tool_name: string
+  tool_type: string
+  compatible_models: string[]
+  separate_pricing: boolean
+  pricing_notes: string | null
+  availability: 'ga' | 'beta' | 'preview'
+  docs_url: string | null
+}
+
+export interface NativeToolsResponse {
+  native_tools: NativeToolRecord[]
+  meta: { total: number; filters: NativeToolsParams; data_date: string }
+}
+
+// ─── /api/v1/model-task-fit ──────────────────────────────────────────────────
+
+export interface ModelTaskFitParams {
+  provider?: string
+  model?: string
+  task?: 'code_generation' | 'reasoning' | 'summarization' | 'creative_writing' | 'tool_use' | 'structured_extraction' | 'rag_qa' | 'math' | 'instruction_following' | 'long_context'
+  min_score?: number
+  tier?: 'elite' | 'strong' | 'capable' | 'limited'
+}
+
+export interface ModelTaskFitRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  task: string
+  score: number
+  tier: 'elite' | 'strong' | 'capable' | 'limited'
+  notes: string | null
+}
+
+export interface ModelTaskFitResponse {
+  model_task_fit: ModelTaskFitRecord[]
+  meta: { total: number; filters: ModelTaskFitParams; data_date: string }
+}
+
+// ─── /api/v1/pii-handling ────────────────────────────────────────────────────
+
+export interface PiiHandlingParams {
+  provider?: string
+  detection_only?: boolean
+  redaction?: boolean
+}
+
+export interface PiiHandlingRecord {
+  provider_id: string
+  provider_name: string
+  pii_detection_supported: boolean
+  pii_redaction_supported: boolean
+  supported_pii_types: string[]
+  detection_in_prompt: boolean
+  detection_in_response: boolean
+  audit_trail_supported: boolean
+  configurable: boolean
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface PiiHandlingResponse {
+  pii_handling: PiiHandlingRecord[]
+  meta: { total: number; filters: PiiHandlingParams; data_date: string }
+}
+
+// ─── /api/v1/context-compression ─────────────────────────────────────────────
+
+export interface ContextCompressionParams {
+  provider?: string
+  native_only?: boolean
+}
+
+export interface ContextCompressionRecord {
+  provider_id: string
+  provider_name: string
+  native_compression: boolean
+  compression_methods: string[]
+  prompt_caching_as_compression: boolean
+  auto_compression: boolean
+  configurable: boolean
+  max_compression_ratio: number | null
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface ContextCompressionResponse {
+  context_compression: ContextCompressionRecord[]
+  meta: { total: number; filters: ContextCompressionParams; data_date: string }
+}
+
+// ─── /api/v1/security-certifications ─────────────────────────────────────────
+
+export interface SecurityCertificationsParams {
+  provider?: string
+  certification?: 'SOC2_Type1' | 'SOC2_Type2' | 'ISO27001' | 'HIPAA' | 'GDPR' | 'CSA_STAR' | 'PCI_DSS' | 'FedRAMP' | 'HITRUST'
+  status?: 'certified' | 'in_progress' | 'not_applicable' | 'unknown'
+}
+
+export interface SecurityCertificationRecord {
+  provider_id: string
+  provider_name: string
+  certification: string
+  status: 'certified' | 'in_progress' | 'not_applicable' | 'unknown'
+  scope: string | null
+  valid_until: string | null
+  report_url: string | null
+}
+
+export interface SecurityCertificationsResponse {
+  security_certifications: SecurityCertificationRecord[]
+  meta: { total: number; filters: SecurityCertificationsParams; data_date: string }
+}
+
+// ─── /api/v1/semantic-caching ────────────────────────────────────────────────
+
+export interface SemanticCachingParams {
+  provider?: string
+  semantic_only?: boolean
+}
+
+export interface SemanticCachingRecord {
+  provider_id: string
+  provider_name: string
+  semantic_caching_supported: boolean
+  caching_type: 'exact_match' | 'semantic_similarity' | 'both' | 'none'
+  similarity_threshold_configurable: boolean
+  estimated_hit_rate_pct: number | null
+  cache_scope: string | null
+  ttl_configurable: boolean
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface SemanticCachingResponse {
+  semantic_caching: SemanticCachingRecord[]
+  meta: { total: number; filters: SemanticCachingParams; data_date: string }
+}
+
+// ─── /api/v1/mcp-support ─────────────────────────────────────────────────────
+
+export interface McpSupportParams {
+  provider?: string
+  server?: boolean
+  client?: boolean
+}
+
+export interface McpSupportRecord {
+  provider_id: string
+  provider_name: string
+  mcp_server_supported: boolean
+  mcp_client_supported: boolean
+  mcp_version: string | null
+  hosted_mcp_servers: string[]
+  custom_mcp_server_support: boolean
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface McpSupportResponse {
+  mcp_support: McpSupportRecord[]
+  meta: { total: number; filters: McpSupportParams; data_date: string }
+}
+
+// ─── /api/v1/model-lifecycle ─────────────────────────────────────────────────
+
+export interface ModelLifecycleParams {
+  provider?: string
+  model?: string
+  stage?: 'experimental' | 'preview' | 'beta' | 'ga' | 'soft_deprecated' | 'hard_deprecated' | 'sunset'
+  deprecated_only?: boolean
+  active_only?: boolean
+}
+
+export interface ModelLifecycleRecord {
+  provider_id: string
+  provider_name: string
+  model_id: string
+  stage: string
+  launch_date: string | null
+  deprecation_date: string | null
+  sunset_date: string | null
+  replacement_model: string | null
+  sla_eligible: boolean
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface ModelLifecycleResponse {
+  model_lifecycle: ModelLifecycleRecord[]
+  meta: { total: number; filters: ModelLifecycleParams; data_date: string }
+}
+
+// ─── /api/v1/delegation-support ──────────────────────────────────────────────
+
+export interface DelegationSupportParams {
+  provider?: string
+  protocol?: string
+}
+
+export interface DelegationSupportRecord {
+  provider_id: string
+  provider_name: string
+  delegation_supported: boolean
+  protocol: string | null
+  time_bound: boolean
+  auditable: boolean
+  revocable: boolean
+  delegation_schema_url: string | null
+  notes: string | null
+}
+
+export interface DelegationSupportResponse {
+  delegation_support: DelegationSupportRecord[]
+  meta: { total: number; filters: DelegationSupportParams; data_date: string }
+}
+
+// ─── /api/v1/prompt-moderation ───────────────────────────────────────────────
+
+export interface PromptModerationParams {
+  provider?: string
+  injection_detection?: boolean
+  configurable?: boolean
+}
+
+export interface PromptModerationRecord {
+  provider_id: string
+  provider_name: string
+  input_moderation_supported: boolean
+  prompt_injection_detection: boolean
+  supported_categories: string[]
+  moderation_action: string[]
+  configurable: boolean
+  separate_moderation_api: boolean
+  latency_impact: 'none' | 'low' | 'medium' | 'high' | null
+  notes: string | null
+  docs_url: string | null
+}
+
+export interface PromptModerationResponse {
+  prompt_moderation: PromptModerationRecord[]
+  meta: { total: number; filters: PromptModerationParams; data_date: string }
+}
